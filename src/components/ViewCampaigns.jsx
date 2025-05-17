@@ -3,9 +3,30 @@ import React from 'react';
 const ViewCampaigns = () => {
   // This would typically be fetched from an API
   const dummyCampaigns = [
-    { id: 1, name: 'Summer Promotion', status: 'Active', startDate: '2025-06-01', endDate: '2025-08-31' },
-    { id: 2, name: 'Fall Sale', status: 'Draft', startDate: '2025-09-15', endDate: '2025-10-15' },
-    { id: 3, name: 'Holiday Campaign', status: 'Planned', startDate: '2025-11-20', endDate: '2025-12-31' },
+    { 
+      id: 1, 
+      campaignId: 'AH7B29X5F3', 
+      name: 'Summer Promotion', 
+      status: 'Active', 
+      startDate: '2025-06-01', 
+      endDate: '2025-08-31' 
+    },
+    { 
+      id: 2, 
+      campaignId: 'M5PQ83R7D2', 
+      name: 'Fall Sale', 
+      status: 'Draft', 
+      startDate: '2025-09-15', 
+      endDate: '2025-10-15' 
+    },
+    { 
+      id: 3, 
+      campaignId: 'T8K47L9V6S', 
+      name: 'Holiday Campaign', 
+      status: 'Planned', 
+      startDate: '2025-11-20', 
+      endDate: '2025-12-31' 
+    },
   ];
 
   return (
@@ -15,6 +36,7 @@ const ViewCampaigns = () => {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Campaign ID</th>
             <th>Name</th>
             <th>Status</th>
             <th>Start Date</th>
@@ -26,6 +48,7 @@ const ViewCampaigns = () => {
           {dummyCampaigns.map(campaign => (
             <tr key={campaign.id}>
               <td>{campaign.id}</td>
+              <td><span className="campaign-id">{campaign.campaignId}</span></td>
               <td>{campaign.name}</td>
               <td>{campaign.status}</td>
               <td>{campaign.startDate}</td>
