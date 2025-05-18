@@ -5,7 +5,7 @@ const ViewCampaigns = () => {
   const dummyCampaigns = [
     { 
       id: 1, 
-      campaignId: 'AH7B29X5F3', 
+      campaignId: '7f5b80e1-68df-4e9c-b3c4-35a3f2769ac8', 
       name: 'Summer Promotion', 
       status: 'Active', 
       startDate: '2025-06-01', 
@@ -13,7 +13,7 @@ const ViewCampaigns = () => {
     },
     { 
       id: 2, 
-      campaignId: 'M5PQ83R7D2', 
+      campaignId: 'a2e8f9d6-57c1-42b3-9e0a-5c7b3d8f1e0a', 
       name: 'Fall Sale', 
       status: 'Draft', 
       startDate: '2025-09-15', 
@@ -21,7 +21,7 @@ const ViewCampaigns = () => {
     },
     { 
       id: 3, 
-      campaignId: 'T8K47L9V6S', 
+      campaignId: '6b9c4d2a-1e8f-40c5-b7a9-3d6e58f0c42b', 
       name: 'Holiday Campaign', 
       status: 'Planned', 
       startDate: '2025-11-20', 

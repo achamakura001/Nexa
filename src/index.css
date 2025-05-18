@@ -9,7 +9,7 @@
   --secondary-light: #ff5f52;
   --secondary-dark: #b30000;
   
-  /* Material neutral colors */
+  /* Material neutral colors - always light mode */
   --background: #ffffff;
   --surface: #f5f5f5;
   --on-primary: #ffffff;
@@ -17,12 +17,17 @@
   --on-background: #212121;
   --on-surface: #757575;
   
+  /* Success and error colors */
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  
   /* Typography */
   font-family: 'Roboto', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* Explicitly set light mode */
+  color-scheme: light;
   color: var(--on-background);
   background-color: var(--background);
 
@@ -309,18 +314,22 @@ button:focus-visible {
 
 .campaign-id {
   font-family: monospace;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: var(--primary-color);
   font-weight: 500;
+  font-size: 0.9em;
+  word-break: break-all;
 }
 
 .form-group input.readonly-field {
   background-color: var(--surface);
   cursor: not-allowed;
   font-family: monospace;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: var(--primary-color);
   font-weight: 500;
+  font-size: 0.9em;
+  width: 100%;
 }
 
 .field-hint {
@@ -330,18 +339,10 @@ button:focus-visible {
   margin-top: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #121212;
-    --surface: #1e1e1e;
-    --on-background: #ffffff;
-    --on-surface: #e0e0e0;
-  }
-  
-  button {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  }
-}
+/* 
+  Removing dark mode media query to ensure the application 
+  always uses light mode regardless of system preferences 
+*/
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -350,8 +351,9 @@ button:focus-visible {
 .tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #007bff;
+  background-color: var(--primary-color); /* Albertsons blue */
   padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .tab {
@@ -364,6 +366,7 @@ button:focus-visible {
   position: relative;
   transition: all 0.2s ease;
   opacity: 0.8;
+  box-shadow: none;
 }
 
 .tab:hover {
@@ -392,10 +395,16 @@ button:focus-visible {
 .completion-indicator {
   margin-right: 5px;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9); /* Slightly less bright for the checkmark */
-  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--primary-color); /* Blue color for better visibility */
+  background-color: white; /* White background for contrast */
   border-radius: 50%;
   padding: 0 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  width: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .tab.completed::after {
@@ -410,21 +419,33 @@ button:focus-visible {
 
 .tab-content {
   padding: 20px;
-  background: white;
+  background-color: var(--background);
   margin: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: var(--on-background);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Campaign Builder Container */
+.campaign-builder {
+  background-color: var(--background);
+  color: var(--on-background);
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.campaign-builder h1 {
+  color: var(--primary-color);
+  margin-bottom: 24px;
+  font-weight: 400;
+  border-bottom: 1px solid var(--surface);
+  padding-bottom: 16px;
+}
+
+/* Make sure success icon in summary uses the variable */
+.summary-success .material-icons-outlined {
+  color: var(--success-color) !important;
 }

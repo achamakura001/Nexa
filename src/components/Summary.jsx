@@ -17,7 +17,7 @@ const Summary = ({ campaignData }) => {
   if (submitted) {
     return (
       <div className="summary-success">
-        <span className="material-icons-outlined" style={{ fontSize: '48px', color: 'green' }}>check_circle</span>
+        <span className="material-icons-outlined" style={{ fontSize: '48px' }}>check_circle</span>
         <h2>Campaign Successfully Created!</h2>
         <p>Your campaign has been scheduled and will start on the selected date.</p>
         <div className="form-actions">
