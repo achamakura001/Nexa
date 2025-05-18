@@ -77,29 +77,60 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
     onChange({ [name]: value });
   };
 
+  const [apiError, setApiError] = useState(null);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
       try {
-        // Simulate API call
+        setApiError(null);
         console.log('Submitting form data:', formData);
         
-        // In a real application, you would call your API here
-        // const response = await fetch('/api/campaigns', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(formData),
-        // });
+        // Prepare data for API
+        const apiData = {
+          campaign_id: formData.campaignId,
+          domain: formData.domain,
+          audience_model: formData.audienceModel,
+          email_address: formData.email,
+          description: formData.description
+        };
         
-        // Simulate API call delay
-        setTimeout(() => {
-          // Pass the form data to parent component and move to next tab
-          onNext(formData);
-        }, 500);
+        // Call the API
+        const response = await fetch('http://127.0.0.1:8000/campaigns/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(apiData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          // Handle validation errors
+          if (response.status === 422) {
+            const errorDetails = data.detail?.map(err => 
+              `${err.loc.join('.')} - ${err.msg}`
+            ).join(', ');
+            
+            setApiError(`Validation error: ${errorDetails}`);
+          } else {
+            setApiError(`API error: ${data.detail || 'Unknown error'}`);
+          }
+          return;
+        }
+        
+        // Success - update form data with response
+        const updatedData = {
+          ...formData,
+          campaignId: data.campaign_id
+        };
+        
+        // Pass the form data to parent component and move to next tab
+        onNext(updatedData);
       } catch (error) {
         console.error('Error submitting form:', error);
+        setApiError(`Network error: ${error.message}`);
       }
     }
   };
@@ -107,6 +138,13 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
   return (
     <div className="campaign-details-form">
       <form onSubmit={handleSubmit}>
+        {apiError && (
+          <div className="api-error-message">
+            <div className="error-icon">⚠️</div>
+            <div className="error-content">{apiError}</div>
+          </div>
+        )}
+        
         <div className="form-group">
           <label htmlFor="campaignId">Campaign ID</label>
           <input

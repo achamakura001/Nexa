@@ -3,15 +3,48 @@ import React, { useState } from 'react';
 const Summary = ({ campaignData }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [submissionResult, setSubmissionResult] = useState(null);
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubmitting(true);
+    setApiError(null);
     
-    // Simulate API submission
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      // Prepare complete campaign data
+      const completeData = {
+        campaign_id: campaignData.details?.campaignId,
+        domain: campaignData.details?.domain,
+        audience_model: campaignData.details?.audienceModel,
+        email_address: campaignData.details?.email,
+        description: campaignData.details?.description,
+        // Add logic and schedule data as needed by the API
+        logic_rules: campaignData.logic?.rules,
+        start_date: campaignData.schedule?.startDate,
+        end_date: campaignData.schedule?.endDate,
+        recurrence: campaignData.schedule?.recurrence,
+        execution_time: campaignData.schedule?.time
+      };
+      
+      // Call the API to finalize the campaign
+      // Note: In this implementation, we assume the campaign was already created
+      // in the CampaignDetailsForm step, so we're just finalizing it here
+      console.log('Finalizing campaign with data:', completeData);
+      
+      // Simulating successful API response since campaign was already created
+      // In a real application, you would make an actual API call here
+      setSubmissionResult({
+        campaign_id: campaignData.details?.campaignId,
+        message: 'Campaign successfully created and scheduled'
+      });
+      
       setSubmitted(true);
-    }, 1500);
+    } catch (error) {
+      console.error('Error finalizing campaign:', error);
+      setApiError(`Error finalizing campaign: ${error.message}`);
+    } finally {
+      setSubmitting(false);
+    }
   };
   
   if (submitted) {
@@ -20,6 +53,7 @@ const Summary = ({ campaignData }) => {
         <span className="material-icons-outlined" style={{ fontSize: '48px' }}>check_circle</span>
         <h2>Campaign Successfully Created!</h2>
         <p>Your campaign has been scheduled and will start on the selected date.</p>
+        <p className="campaign-id-success">Campaign ID: <span>{submissionResult?.campaign_id}</span></p>
         <div className="form-actions">
           <button className="primary-button" onClick={() => window.location.href = '/view-campaigns'}>
             View All Campaigns
@@ -33,6 +67,13 @@ const Summary = ({ campaignData }) => {
     <div className="campaign-summary">
       <h2>Campaign Summary</h2>
       <p>Review your campaign details before finalizing</p>
+      
+      {apiError && (
+        <div className="api-error-message">
+          <div className="error-icon">⚠️</div>
+          <div className="error-content">{apiError}</div>
+        </div>
+      )}
       
       <div className="summary-section">
         <h3>Campaign Details</h3>
@@ -95,7 +136,7 @@ const Summary = ({ campaignData }) => {
           onClick={handleSubmit}
           disabled={submitting}
         >
-          {submitting ? 'Submitting...' : 'Create Campaign'}
+          {submitting ? 'Finalizing Campaign...' : 'Create Campaign'}
         </button>
       </div>
     </div>

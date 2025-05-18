@@ -9,6 +9,7 @@ const Schedule = ({ onNext, campaignDetails, initialData = {}, onChange = () => 
   });
 
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState(null);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,19 +41,32 @@ const Schedule = ({ onNext, campaignDetails, initialData = {}, onChange = () => 
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError(null);
+    
     if (validate()) {
-      // Simulate API call
-      setTimeout(() => {
+      try {
+        // We're just passing the schedule data to the next step without API call
+        // In a real application, you might want to validate or save these scheduling details
         onNext(formData);
-      }, 500);
+      } catch (error) {
+        console.error('Error processing schedule:', error);
+        setApiError(`Error: ${error.message}`);
+      }
     }
   };
   
   return (
     <div className="schedule-form">
       <h2>Campaign Schedule</h2>
+      
+      {apiError && (
+        <div className="api-error-message">
+          <div className="error-icon">⚠️</div>
+          <div className="error-content">{apiError}</div>
+        </div>
+      )}
       
       <div className="campaign-info">
         <div className="info-item">

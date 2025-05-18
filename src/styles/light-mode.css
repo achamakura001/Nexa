@@ -1,0 +1,17 @@
+/* Light mode styles for main content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background-color: var(--surface);
+  color: var(--on-background);
+}
+
+.welcome-screen {
+  text-align: center;
+  padding: 64px;
+  background-color: var(--background);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 24px;
+}

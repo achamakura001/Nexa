@@ -11,6 +11,8 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
   });
   const [loading, setLoading] = useState(false);
   
+  const [apiError, setApiError] = useState(null);
+  
   const handleRuleChange = (e) => {
     const { id, checked } = e.target;
     const ruleName = id.split('-')[0]; // Extract the rule name from the id
@@ -26,22 +28,38 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
     onChange({ [ruleName]: checked });
   };
   
-  const handleNext = () => {
+  const handleNext = async () => {
     setLoading(true);
-    // Simulate processing
-    setTimeout(() => {
-      setLoading(false);
-      // Pass all selected rules to the next step
-      onNext({ 
+    setApiError(null);
+    
+    try {
+      // We're just passing the rules to the next step without API call
+      // In a real application, you might want to validate or save these rules
+      const logicData = {
         ...selectedRules,
-        rules: "Custom logic rules" 
-      });
-    }, 500);
+        rules: "Custom logic rules"
+      };
+      
+      // Move to the next step
+      onNext(logicData);
+    } catch (error) {
+      console.error('Error processing logic:', error);
+      setApiError(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
     <div className="logic-builder">
       <h2>Build Campaign Logic</h2>
+      
+      {apiError && (
+        <div className="api-error-message">
+          <div className="error-icon">⚠️</div>
+          <div className="error-content">{apiError}</div>
+        </div>
+      )}
       
       <div className="logic-section">
         <div className="campaign-info">
