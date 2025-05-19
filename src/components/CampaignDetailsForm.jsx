@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { postData } from '../utils/api';
 
 // Function to generate a UUID v4
 const generateCampaignId = () => {
@@ -15,8 +16,8 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
     campaignId: initialData.campaignId || '',
     domain: initialData.domain || '',
     audienceModel: initialData.audienceModel || '',
-    email: initialData.email || '',
-    description: initialData.description || ''
+    email: initialData.email || 'hardcoded@ddd.com',
+    description: initialData.description || 'Testing campaign description, this is hard coded',
   });
 
   const [errors, setErrors] = useState({});
@@ -95,39 +96,30 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
           description: formData.description
         };
         
-        // Call the API
-        const response = await fetch('http://127.0.0.1:8000/campaigns/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(apiData),
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
+        try {
+          // Call the API using our utility function
+          const data = await postData('/campaigns/', apiData);
+          
+          // Success - update form data with response
+          const updatedData = {
+            ...formData,
+            campaignId: data.campaign_id
+          };
+          
+          // Pass the form data to parent component and move to next tab
+          onNext(updatedData);
+        } catch (error) {
           // Handle validation errors
-          if (response.status === 422) {
-            const errorDetails = data.detail?.map(err => 
+          if (error.status === 422) {
+            const errorDetails = error.data.detail?.map(err => 
               `${err.loc.join('.')} - ${err.msg}`
             ).join(', ');
             
             setApiError(`Validation error: ${errorDetails}`);
           } else {
-            setApiError(`API error: ${data.detail || 'Unknown error'}`);
+            setApiError(`API error: ${error.data?.detail || 'Unknown error'}`);
           }
-          return;
         }
-        
-        // Success - update form data with response
-        const updatedData = {
-          ...formData,
-          campaignId: data.campaign_id
-        };
-        
-        // Pass the form data to parent component and move to next tab
-        onNext(updatedData);
       } catch (error) {
         console.error('Error submitting form:', error);
         setApiError(`Network error: ${error.message}`);

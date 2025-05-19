@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 
 const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = () => {} }) => {
   const [selectedRules, setSelectedRules] = useState({
-    age: initialData.age || false,
-    gender: initialData.gender || false,
-    location: initialData.location || false,
+    gender: initialData.gender || { value: 'male' },
     frequency: initialData.frequency || false,
     basket: initialData.basket || false,
     category: initialData.category || false
@@ -14,7 +12,25 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
   const [apiError, setApiError] = useState(null);
   
   const handleRuleChange = (e) => {
-    const { id, checked } = e.target;
+    const { id, checked, value, name } = e.target;
+    
+    // Handle gender radio buttons
+    if (name === 'gender') {
+      const updatedGenderRule = {
+        value
+      };
+      
+      const updatedRules = {
+        ...selectedRules,
+        gender: updatedGenderRule
+      };
+      
+      setSelectedRules(updatedRules);
+      onChange({ gender: updatedGenderRule });
+      return;
+    }
+    
+    // Handle other checkboxes
     const ruleName = id.split('-')[0]; // Extract the rule name from the id
     
     const updatedRules = {
@@ -52,103 +68,235 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
   
   return (
     <div className="logic-builder">
-      <h2>Build Campaign Logic</h2>
+      <h2 style={{ 
+        fontSize: '24px', 
+        fontWeight: 'bold', 
+        marginBottom: '1.5rem',
+        color: '#333',
+        borderBottom: '2px solid #f0f0f0',
+        paddingBottom: '0.5rem'
+      }}>Build Campaign Logic</h2>
       
       {apiError && (
-        <div className="api-error-message">
-          <div className="error-icon">⚠️</div>
-          <div className="error-content">{apiError}</div>
+        <div className="api-error-message" style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '12px',
+          backgroundColor: '#fff0f0',
+          border: '1px solid #ffcccc',
+          borderRadius: '4px',
+          marginBottom: '1rem'
+        }}>
+          <div className="error-icon" style={{ marginRight: '10px' }}>⚠️</div>
+          <div className="error-content" style={{ color: '#d32f2f' }}>{apiError}</div>
         </div>
       )}
       
       <div className="logic-section">
-        <div className="campaign-info">
-          <div className="info-item">
-            <label>Campaign ID:</label>
-            <span className="campaign-id">{campaignDetails?.campaignId || 'N/A'}</span>
+        <div className="campaign-info" style={{
+          backgroundColor: '#f9f9f9',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '1.5rem'
+        }}>
+          <div className="info-item" style={{ display: 'flex', alignItems: 'center' }}>
+            <label style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Campaign ID:</label>
+            <span className="campaign-id" style={{ 
+              backgroundColor: '#e6f2ff', 
+              padding: '2px 8px', 
+              borderRadius: '4px',
+              color: '#007bff',
+              fontFamily: 'monospace'
+            }}>{campaignDetails?.campaignId || 'N/A'}</span>
           </div>
-          <div className="info-item">
-            <label>Domain:</label>
-            <span>{campaignDetails?.domain || 'N/A'}</span>
+          <div className="info-item" style={{ display: 'flex', alignItems: 'center' }}>
+            <label style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Domain:</label>
+            <span style={{ 
+              backgroundColor: '#f0f7ff',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              color: '#0066cc'
+            }}>{campaignDetails?.domain || 'N/A'}</span>
           </div>
         </div>
         
-        <p>Build targeting rules for your campaign using the tools below</p>
         
         <div className="logic-builder-ui">
-          <div className="rule-section">
-            <h4>Demographic Filters</h4>
+          <div className="rule-section" style={{ marginBottom: '2rem' }}>
+            <h4 style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold', 
+              marginBottom: '1rem',
+              color: '#333',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <span style={{ 
+                display: 'inline-block', 
+                width: '8px', 
+                height: '18px', 
+                backgroundColor: '#007bff',
+                marginRight: '8px',
+                borderRadius: '2px'
+              }}></span>
+              Demographic Filters
+            </h4>
             <div className="rule-options">
-              <div className="rule-option">
-                <input 
-                  type="checkbox" 
-                  id="age-filter" 
-                  checked={selectedRules.age}
-                  onChange={handleRuleChange}
-                />
-                <label htmlFor="age-filter">Age Range</label>
-              </div>
-              <div className="rule-option">
-                <input 
-                  type="checkbox" 
-                  id="gender-filter" 
-                  checked={selectedRules.gender}
-                  onChange={handleRuleChange}
-                />
-                <label htmlFor="gender-filter">Gender</label>
-              </div>
-              <div className="rule-option">
-                <input 
-                  type="checkbox" 
-                  id="location-filter" 
-                  checked={selectedRules.location}
-                  onChange={handleRuleChange}
-                />
-                <label htmlFor="location-filter">Location</label>
+              {/* Gender Radio Buttons */}
+              <div className="rule-option" style={{ 
+                width: '100%', 
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
+                borderRadius: '8px'
+              }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '1rem',
+                  fontSize: '15px',
+                  fontWeight: 'bold' 
+                }}>
+                  Gender
+                </label>
+                <div className="gender-radio-group" style={{ display: 'flex', gap: '2rem' }}>
+                  <div className="gender-radio" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    backgroundColor: selectedRules.gender.value === 'male' ? '#e6f2ff' : 'transparent',
+                    border: selectedRules.gender.value === 'male' ? '1px solid #007bff' : '1px solid #e0e0e0'
+                  }}>
+                    <input 
+                      type="radio" 
+                      id="gender-male" 
+                      name="gender"
+                      value="male"
+                      checked={selectedRules.gender.value === 'male'}
+                      onChange={handleRuleChange}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <label htmlFor="gender-male">Male</label>
+                  </div>
+                  <div className="gender-radio" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    backgroundColor: selectedRules.gender.value === 'female' ? '#e6f2ff' : 'transparent',
+                    border: selectedRules.gender.value === 'female' ? '1px solid #007bff' : '1px solid #e0e0e0'
+                  }}>
+                    <input 
+                      type="radio" 
+                      id="gender-female" 
+                      name="gender"
+                      value="female"
+                      checked={selectedRules.gender.value === 'female'}
+                      onChange={handleRuleChange}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <label htmlFor="gender-female">Female</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           
           <div className="rule-section">
-            <h4>Shopping Behavior</h4>
-            <div className="rule-options">
-              <div className="rule-option">
+            <h4 style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold', 
+              marginBottom: '1rem',
+              color: '#333',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <span style={{ 
+                display: 'inline-block', 
+                width: '8px', 
+                height: '18px', 
+                backgroundColor: '#28a745',
+                marginRight: '8px',
+                borderRadius: '2px'
+              }}></span>
+              Shopping Behavior
+            </h4>
+            <div className="rule-options" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="rule-option" style={{ 
+                padding: '8px 16px',
+                backgroundColor: selectedRules.frequency ? '#f0f7ff' : '#f9f9f9',
+                borderRadius: '4px',
+                border: selectedRules.frequency ? '1px solid #007bff' : '1px solid #e0e0e0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 <input 
                   type="checkbox" 
                   id="frequency-filter" 
                   checked={selectedRules.frequency}
                   onChange={handleRuleChange}
+                  style={{ marginRight: '10px' }}
                 />
-                <label htmlFor="frequency-filter">Shopping Frequency</label>
+                <label htmlFor="frequency-filter" style={{ cursor: 'pointer' }}>Shopping Frequency</label>
               </div>
-              <div className="rule-option">
+              <div className="rule-option" style={{ 
+                padding: '8px 16px',
+                backgroundColor: selectedRules.basket ? '#f0f7ff' : '#f9f9f9', 
+                borderRadius: '4px',
+                border: selectedRules.basket ? '1px solid #007bff' : '1px solid #e0e0e0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 <input 
                   type="checkbox" 
                   id="basket-filter" 
                   checked={selectedRules.basket}
                   onChange={handleRuleChange}
+                  style={{ marginRight: '10px' }}
                 />
-                <label htmlFor="basket-filter">Basket Size</label>
+                <label htmlFor="basket-filter" style={{ cursor: 'pointer' }}>Basket Size</label>
               </div>
-              <div className="rule-option">
+              <div className="rule-option" style={{ 
+                padding: '8px 16px',
+                backgroundColor: selectedRules.category ? '#f0f7ff' : '#f9f9f9',
+                borderRadius: '4px',
+                border: selectedRules.category ? '1px solid #007bff' : '1px solid #e0e0e0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 <input 
                   type="checkbox" 
                   id="category-filter" 
                   checked={selectedRules.category}
                   onChange={handleRuleChange}
+                  style={{ marginRight: '10px' }}
                 />
-                <label htmlFor="category-filter">Category Preference</label>
+                <label htmlFor="category-filter" style={{ cursor: 'pointer' }}>Category Preference</label>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="form-actions">
+      <div className="form-actions" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
         <button 
           className="primary-button" 
           onClick={handleNext}
           disabled={loading}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#cccccc' : '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'background-color 0.2s ease',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          }}
         >
           {loading ? 'Processing...' : 'Continue to Schedule'}
         </button>

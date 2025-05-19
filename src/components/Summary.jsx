@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { postData } from '../utils/api';
 
 const Summary = ({ campaignData }) => {
   const [submitting, setSubmitting] = useState(false);
@@ -31,8 +32,10 @@ const Summary = ({ campaignData }) => {
       // in the CampaignDetailsForm step, so we're just finalizing it here
       console.log('Finalizing campaign with data:', completeData);
       
-      // Simulating successful API response since campaign was already created
-      // In a real application, you would make an actual API call here
+      // In a real application, you might call an API endpoint here to finalize the campaign
+      // Example: const result = await postData('/campaigns/finalize', completeData);
+      
+      // Since we already created the campaign in the first step, we'll just use that data
       setSubmissionResult({
         campaign_id: campaignData.details?.campaignId,
         message: 'Campaign successfully created and scheduled'
@@ -41,7 +44,12 @@ const Summary = ({ campaignData }) => {
       setSubmitted(true);
     } catch (error) {
       console.error('Error finalizing campaign:', error);
-      setApiError(`Error finalizing campaign: ${error.message}`);
+      
+      if (error.status) {
+        setApiError(`API error (${error.status}): ${error.data?.detail || 'Unknown error'}`);
+      } else {
+        setApiError(`Error finalizing campaign: ${error.message || 'Unknown error'}`);
+      }
     } finally {
       setSubmitting(false);
     }
