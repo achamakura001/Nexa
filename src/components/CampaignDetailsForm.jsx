@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { postData } from '../utils/api';
 
-// Function to generate a UUID v4
+// Function to generate a UUID v4 compliant with RFC4122
 const generateCampaignId = () => {
-  // RFC4122 compliant UUID v4 implementation
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+  // Create a properly formatted UUID v4
+  const hexDigits = '0123456789abcdef';
+  let uuid = '';
+  
+  for (let i = 0; i < 36; i++) {
+    if (i === 8 || i === 13 || i === 18 || i === 23) {
+      uuid += '-';
+    } else if (i === 14) {
+      uuid += '4'; // Version 4
+    } else if (i === 19) {
+      uuid += hexDigits[(Math.random() * 4 | 0) + 8]; // Variant bits
+    } else {
+      uuid += hexDigits[Math.random() * 16 | 0];
+    }
+  }
+  
+  return uuid;
 };
 
 const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) => {
@@ -96,9 +107,13 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
           description: formData.description
         };
         
+        console.log('Sending API request with campaign_id:', apiData.campaign_id);
+        
         try {
           // Call the API using our utility function
           const data = await postData('/campaigns/', apiData);
+          
+          console.log('API response:', data);
           
           // Success - update form data with response
           const updatedData = {
@@ -109,15 +124,47 @@ const CampaignDetailsForm = ({ onNext, initialData = {}, onChange = () => {} }) 
           // Pass the form data to parent component and move to next tab
           onNext(updatedData);
         } catch (error) {
+          console.error('API call failed:', error);
+          
           // Handle validation errors
           if (error.status === 422) {
             const errorDetails = error.data.detail?.map(err => 
               `${err.loc.join('.')} - ${err.msg}`
             ).join(', ');
             
-            setApiError(`Validation error: ${errorDetails}`);
+            // Handle UUID validation errors specifically
+            if (errorDetails.includes('UUID')) {
+              console.log('UUID validation error, regenerating UUID and retrying...');
+              const newUuid = generateCampaignId();
+              console.log('Generated new UUID:', newUuid);
+              
+              const updatedApiData = {
+                ...apiData,
+                campaign_id: newUuid
+              };
+              
+              try {
+                const retryData = await postData('/campaigns/', updatedApiData);
+                console.log('Retry successful with new UUID:', retryData);
+                
+                const updatedFormData = {
+                  ...formData,
+                  campaignId: retryData.campaign_id
+                };
+                
+                onNext(updatedFormData);
+                return;
+              } catch (retryError) {
+                console.error('Retry with new UUID also failed:', retryError);
+                setApiError(`Retry failed: ${retryError.data?.detail || JSON.stringify(retryError.data)}`);
+              }
+            } else {
+              setApiError(`Validation error: ${errorDetails}`);
+            }
+          } else if (error.status === 0) {
+            setApiError(`Network error: The server may not be running or CORS is not properly configured.`);
           } else {
-            setApiError(`API error: ${error.data?.detail || 'Unknown error'}`);
+            setApiError(`API error (${error.status}): ${error.data?.detail || JSON.stringify(error.data) || 'Unknown error'}`);
           }
         }
       } catch (error) {

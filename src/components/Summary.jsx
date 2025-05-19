@@ -1,58 +1,27 @@
 import React, { useState } from 'react';
-import { postData } from '../utils/api';
 
-const Summary = ({ campaignData }) => {
+const Summary = ({ campaignData, onEditSection }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [apiError, setApiError] = useState(null);
   const [submissionResult, setSubmissionResult] = useState(null);
   
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setSubmitting(true);
-    setApiError(null);
     
-    try {
-      // Prepare complete campaign data
-      const completeData = {
-        campaign_id: campaignData.details?.campaignId,
-        domain: campaignData.details?.domain,
-        audience_model: campaignData.details?.audienceModel,
-        email_address: campaignData.details?.email,
-        description: campaignData.details?.description,
-        // Add logic and schedule data as needed by the API
-        logic_rules: campaignData.logic?.rules,
-        start_date: campaignData.schedule?.startDate,
-        end_date: campaignData.schedule?.endDate,
-        recurrence: campaignData.schedule?.recurrence,
-        execution_time: campaignData.schedule?.time
-      };
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      console.log('Simulating campaign creation (API not ready)');
+      console.log('Campaign data:', campaignData);
       
-      // Call the API to finalize the campaign
-      // Note: In this implementation, we assume the campaign was already created
-      // in the CampaignDetailsForm step, so we're just finalizing it here
-      console.log('Finalizing campaign with data:', completeData);
-      
-      // In a real application, you might call an API endpoint here to finalize the campaign
-      // Example: const result = await postData('/campaigns/finalize', completeData);
-      
-      // Since we already created the campaign in the first step, we'll just use that data
+      // Simulate successful submission
       setSubmissionResult({
         campaign_id: campaignData.details?.campaignId,
         message: 'Campaign successfully created and scheduled'
       });
       
       setSubmitted(true);
-    } catch (error) {
-      console.error('Error finalizing campaign:', error);
-      
-      if (error.status) {
-        setApiError(`API error (${error.status}): ${error.data?.detail || 'Unknown error'}`);
-      } else {
-        setApiError(`Error finalizing campaign: ${error.message || 'Unknown error'}`);
-      }
-    } finally {
       setSubmitting(false);
-    }
+    }, 1500); // Simulate a 1.5 second API call
   };
   
   if (submitted) {
@@ -76,15 +45,26 @@ const Summary = ({ campaignData }) => {
       <h2>Campaign Summary</h2>
       <p>Review your campaign details before finalizing</p>
       
-      {apiError && (
-        <div className="api-error-message">
-          <div className="error-icon">⚠️</div>
-          <div className="error-content">{apiError}</div>
-        </div>
-      )}
-      
       <div className="summary-section">
-        <h3>Campaign Details</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3>Campaign Details</h3>
+          <button 
+            className="edit-button" 
+            onClick={() => onEditSection('details')}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: 'transparent',
+              color: '#007bff',
+              border: '1px solid #007bff',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Edit Details
+          </button>
+        </div>
         <div className="summary-grid">
           <div className="summary-item">
             <span className="summary-label">Campaign ID:</span>
@@ -110,14 +90,73 @@ const Summary = ({ campaignData }) => {
       </div>
       
       <div className="summary-section">
-        <h3>Campaign Logic</h3>
-        <div className="summary-content">
-          <p>Custom targeting logic has been applied to this campaign.</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3>Campaign Logic</h3>
+          <button 
+            className="edit-button" 
+            onClick={() => onEditSection('logic')}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: 'transparent',
+              color: '#007bff',
+              border: '1px solid #007bff',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Edit Logic
+          </button>
+        </div>
+        <div className="summary-grid">
+          <div className="summary-item">
+            <span className="summary-label">Gender:</span>
+            <span className="summary-value">{campaignData.logic?.gender?.value ? campaignData.logic.gender.value.charAt(0).toUpperCase() + campaignData.logic.gender.value.slice(1) : 'Not specified'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Department:</span>
+            <span className="summary-value">{campaignData.logic?.department || 'Not specified'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Aisle:</span>
+            <span className="summary-value">{campaignData.logic?.aisle || 'Not specified'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Shelf:</span>
+            <span className="summary-value">{campaignData.logic?.shelf || 'Not specified'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">Brand:</span>
+            <span className="summary-value">{campaignData.logic?.brand || 'Not specified'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">UPC:</span>
+            <span className="summary-value">{campaignData.logic?.upc ? `${campaignData.logic.upc} (${campaignData.logic.upcMode === 'inclusion' ? 'Include' : 'Exclude'})` : 'Not specified'}</span>
+          </div>
         </div>
       </div>
       
       <div className="summary-section">
-        <h3>Schedule</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3>Schedule</h3>
+          <button 
+            className="edit-button" 
+            onClick={() => onEditSection('schedule')}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: 'transparent',
+              color: '#007bff',
+              border: '1px solid #007bff',
+              borderRadius: '4px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Edit Schedule
+          </button>
+        </div>
         <div className="summary-grid">
           <div className="summary-item">
             <span className="summary-label">Start Date:</span>

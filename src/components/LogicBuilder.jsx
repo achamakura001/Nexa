@@ -3,16 +3,26 @@ import React, { useState } from 'react';
 const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = () => {} }) => {
   const [selectedRules, setSelectedRules] = useState({
     gender: initialData.gender || { value: 'male' },
-    frequency: initialData.frequency || false,
-    basket: initialData.basket || false,
-    category: initialData.category || false
+    department: initialData.department || '',
+    aisle: initialData.aisle || '',
+    shelf: initialData.shelf || '',
+    brand: initialData.brand || '',
+    upc: initialData.upc || '',
+    upcMode: initialData.upcMode || 'inclusion'
   });
   const [loading, setLoading] = useState(false);
-  
   const [apiError, setApiError] = useState(null);
   
+  // Mock data for dropdowns - will be replaced with API calls later
+  const options = {
+    departments: ['Grocery', 'Produce', 'Meat', 'Dairy', 'Bakery', 'Frozen Foods', 'Personal Care', 'Beverages'],
+    aisles: ['Canned Goods', 'Cereal', 'Snacks', 'Pasta', 'Condiments', 'Baking', 'Cleaning'],
+    shelves: ['Top', 'Middle', 'Bottom', 'End Cap'],
+    brands: ['Store Brand', 'Kraft', 'Nestle', 'Pepsi', 'Coca-Cola', 'General Mills', 'Kellogg\'s', 'P&G']
+  };
+  
   const handleRuleChange = (e) => {
-    const { id, checked, value, name } = e.target;
+    const { value, name, type } = e.target;
     
     // Handle gender radio buttons
     if (name === 'gender') {
@@ -30,18 +40,25 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
       return;
     }
     
-    // Handle other checkboxes
-    const ruleName = id.split('-')[0]; // Extract the rule name from the id
+    // Handle UPC mode radio buttons
+    if (name === 'upcMode') {
+      setSelectedRules({
+        ...selectedRules,
+        upcMode: value
+      });
+      onChange({ upcMode: value });
+      return;
+    }
     
-    const updatedRules = {
-      ...selectedRules,
-      [ruleName]: checked
-    };
-    
-    setSelectedRules(updatedRules);
-    
-    // Update parent component state in real-time
-    onChange({ [ruleName]: checked });
+    // Handle dropdown selects and text inputs
+    if (type === 'select-one' || type === 'text') {
+      setSelectedRules({
+        ...selectedRules,
+        [name]: value
+      });
+      onChange({ [name]: value });
+      return;
+    }
   };
   
   const handleNext = async () => {
@@ -224,56 +241,217 @@ const LogicBuilder = ({ onNext, campaignDetails, initialData = {}, onChange = ()
               Shopping Behavior
             </h4>
             <div className="rule-options" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {/* Department dropdown */}
               <div className="rule-option" style={{ 
-                padding: '8px 16px',
-                backgroundColor: selectedRules.frequency ? '#f0f7ff' : '#f9f9f9',
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
                 borderRadius: '4px',
-                border: selectedRules.frequency ? '1px solid #007bff' : '1px solid #e0e0e0',
-                display: 'flex',
-                alignItems: 'center'
+                border: '1px solid #e0e0e0'
               }}>
-                <input 
-                  type="checkbox" 
-                  id="frequency-filter" 
-                  checked={selectedRules.frequency}
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>
+                  Department
+                </label>
+                <select
+                  name="department"
+                  value={selectedRules.department}
                   onChange={handleRuleChange}
-                  style={{ marginRight: '10px' }}
-                />
-                <label htmlFor="frequency-filter" style={{ cursor: 'pointer' }}>Shopping Frequency</label>
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <option value="">Select Department</option>
+                  {options.departments.map((department, index) => (
+                    <option key={index} value={department}>{department}</option>
+                  ))}
+                </select>
               </div>
+              
+              {/* Aisle dropdown */}
               <div className="rule-option" style={{ 
-                padding: '8px 16px',
-                backgroundColor: selectedRules.basket ? '#f0f7ff' : '#f9f9f9', 
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
                 borderRadius: '4px',
-                border: selectedRules.basket ? '1px solid #007bff' : '1px solid #e0e0e0',
-                display: 'flex',
-                alignItems: 'center'
+                border: '1px solid #e0e0e0'
               }}>
-                <input 
-                  type="checkbox" 
-                  id="basket-filter" 
-                  checked={selectedRules.basket}
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>
+                  Aisle
+                </label>
+                <select
+                  name="aisle"
+                  value={selectedRules.aisle}
                   onChange={handleRuleChange}
-                  style={{ marginRight: '10px' }}
-                />
-                <label htmlFor="basket-filter" style={{ cursor: 'pointer' }}>Basket Size</label>
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <option value="">Select Aisle</option>
+                  {options.aisles.map((aisle, index) => (
+                    <option key={index} value={aisle}>{aisle}</option>
+                  ))}
+                </select>
               </div>
+              
+              {/* Shelf dropdown */}
               <div className="rule-option" style={{ 
-                padding: '8px 16px',
-                backgroundColor: selectedRules.category ? '#f0f7ff' : '#f9f9f9',
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
                 borderRadius: '4px',
-                border: selectedRules.category ? '1px solid #007bff' : '1px solid #e0e0e0',
-                display: 'flex',
-                alignItems: 'center'
+                border: '1px solid #e0e0e0'
               }}>
-                <input 
-                  type="checkbox" 
-                  id="category-filter" 
-                  checked={selectedRules.category}
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>
+                  Shelf
+                </label>
+                <select
+                  name="shelf"
+                  value={selectedRules.shelf}
                   onChange={handleRuleChange}
-                  style={{ marginRight: '10px' }}
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <option value="">Select Shelf</option>
+                  {options.shelves.map((shelf, index) => (
+                    <option key={index} value={shelf}>{shelf}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Brand dropdown */}
+              <div className="rule-option" style={{ 
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
+                borderRadius: '4px',
+                border: '1px solid #e0e0e0'
+              }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>
+                  Brand
+                </label>
+                <select
+                  name="brand"
+                  value={selectedRules.brand}
+                  onChange={handleRuleChange}
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <option value="">Select Brand</option>
+                  {options.brands.map((brand, index) => (
+                    <option key={index} value={brand}>{brand}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* UPC text input with radio buttons */}
+              <div className="rule-option" style={{ 
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
+                borderRadius: '4px',
+                border: '1px solid #e0e0e0'
+              }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold' 
+                }}>
+                  UPC
+                </label>
+                <input 
+                  type="text" 
+                  name="upc"
+                  value={selectedRules.upc}
+                  onChange={handleRuleChange}
+                  placeholder="Enter UPC code"
+                  style={{ 
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '14px',
+                    marginBottom: '10px'
+                  }}
                 />
-                <label htmlFor="category-filter" style={{ cursor: 'pointer' }}>Category Preference</label>
+                
+                <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                  <div className="upc-radio" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    backgroundColor: selectedRules.upcMode === 'inclusion' ? '#e6f2ff' : 'transparent',
+                    border: selectedRules.upcMode === 'inclusion' ? '1px solid #007bff' : '1px solid #e0e0e0'
+                  }}>
+                    <input 
+                      type="radio" 
+                      id="upc-inclusion" 
+                      name="upcMode"
+                      value="inclusion"
+                      checked={selectedRules.upcMode === 'inclusion'}
+                      onChange={handleRuleChange}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <label htmlFor="upc-inclusion">Inclusion</label>
+                  </div>
+                  <div className="upc-radio" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    padding: '8px 16px',
+                    borderRadius: '4px',
+                    backgroundColor: selectedRules.upcMode === 'exclusion' ? '#e6f2ff' : 'transparent',
+                    border: selectedRules.upcMode === 'exclusion' ? '1px solid #007bff' : '1px solid #e0e0e0'
+                  }}>
+                    <input 
+                      type="radio" 
+                      id="upc-exclusion" 
+                      name="upcMode"
+                      value="exclusion"
+                      checked={selectedRules.upcMode === 'exclusion'}
+                      onChange={handleRuleChange}
+                      style={{ marginRight: '8px' }}
+                    />
+                    <label htmlFor="upc-exclusion">Exclusion</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

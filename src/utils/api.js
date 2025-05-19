@@ -29,23 +29,52 @@ const getDefaultHeaders = () => {
  */
 export const postData = async (endpoint, data) => {
   try {
+    console.log(`Making POST request to ${API_BASE_URL}${endpoint}`);
+    console.log('Request headers:', getDefaultHeaders());
+    console.log('Request data:', JSON.stringify(data));
+    
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: getDefaultHeaders(),
       body: JSON.stringify(data),
+      credentials: 'include',
+      mode: 'cors'
     });
 
-    const responseData = await response.json();
+    console.log('Response status:', response.status);
+    console.log('Response status text:', response.statusText);
+    
+    let responseData;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+      console.log('Response data:', responseData);
+    } else {
+      const text = await response.text();
+      console.log('Response text:', text);
+      responseData = { detail: text || 'No response body' };
+      // Try to parse as JSON if possible, but don't throw if it fails
+      if (text && text.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(text);
+          responseData = parsed;
+        } catch {
+          // Ignore parse errors and use the text as is
+        }
+      }
+    }
     
     if (!response.ok) {
       throw { 
         status: response.status, 
+        statusText: response.statusText,
         data: responseData 
       };
     }
     
     return responseData;
   } catch (error) {
+    console.error('API Error:', error);
     if (error.status) {
       // This is an error from the server with a status code
       throw error;
